@@ -13,7 +13,7 @@ function MAT_easyTFRplot(cfg, data)
 %   cfg.condition   = condition (default: 100 or 'No movement', see MAT_DATASTRUCTURE)
 %   cfg.electrode   = number of electrode (default: 'Cz')
 %   cfg.trial       = number of trial (default: 1)
-%   cfg.freqlimits  = [begin end] (default: [2 50])
+%   cfg.freqlimits  = [begin end] (default: [2 100])
 %   cfg.timelimits  = [begin end] (default: [0 5])
 %
 % This function requires the fieldtrip toolbox
@@ -29,7 +29,7 @@ part    = ft_getopt(cfg, 'part', 1);
 cond    = ft_getopt(cfg, 'condition', 100);
 elec    = ft_getopt(cfg, 'electrode', 'Cz');
 trl     = ft_getopt(cfg, 'trial', 1);
-freqlim = ft_getopt(cfg, 'freqlimits', [2 50]);
+freqlim = ft_getopt(cfg, 'freqlimits', [2 100]);
 timelim = ft_getopt(cfg, 'timelimits', [0 5]);
 
 if ~ismember(part, [1,2])                                                   % check cfg.part definition

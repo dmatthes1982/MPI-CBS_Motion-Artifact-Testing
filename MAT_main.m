@@ -62,7 +62,7 @@ if ~exist(strcat(desPath, '03a_tfr_raw'), 'dir')
   mkdir(strcat(desPath, '03a_tfr_raw'));
 end
 if ~exist(strcat(desPath, '03b_tfr_preproc'), 'dir')
-  mkdir(strcat(desPath, '03b_tfr_preprco'));
+  mkdir(strcat(desPath, '03b_tfr_preproc'));
 end
 if ~exist(strcat(desPath, '03c_pwelch_raw'), 'dir')
   mkdir(strcat(desPath, '03c_pwelch_raw'));
@@ -70,7 +70,30 @@ end
 if ~exist(strcat(desPath, '03d_pwelch_preproc'), 'dir')
   mkdir(strcat(desPath, '03d_pwelch_preproc'));
 end
-
+if ~exist(strcat(desPath, '04a_tfroc_raw'), 'dir')
+  mkdir(strcat(desPath, '04a_tfroc_raw'));
+end
+if ~exist(strcat(desPath, '04b_tfroc_preproc'), 'dir')
+  mkdir(strcat(desPath, '04b_tfroc_preproc'));
+end
+if ~exist(strcat(desPath, '04c_pwelchoc_raw'), 'dir')
+  mkdir(strcat(desPath, '04c_pwelchoc_raw'));
+end
+if ~exist(strcat(desPath, '04d_pwelchoc_preproc'), 'dir')
+  mkdir(strcat(desPath, '04d_pwelchoc_preproc'));
+end
+if ~exist(strcat(desPath, '04e_tfrop_raw'), 'dir')
+  mkdir(strcat(desPath, '04e_tfrop_raw'));
+end
+if ~exist(strcat(desPath, '04f_tfrop_preproc'), 'dir')
+  mkdir(strcat(desPath, '04f_tfrop_preproc'));
+end
+if ~exist(strcat(desPath, '04g_pwelchop_raw'), 'dir')
+  mkdir(strcat(desPath, '04g_pwelchop_raw'));
+end
+if ~exist(strcat(desPath, '04h_pwelchop_preproc'), 'dir')
+  mkdir(strcat(desPath, '04h_pwelchop_preproc'));
+end
 clear sessionStr numOfPart part newPaths
 
 % -------------------------------------------------------------------------
@@ -190,7 +213,8 @@ else
     fprintf('[1] - Data import and repairing of bad channels\n');
     fprintf('[2] - Preprocessing, filtering, re-referencing\n');
     fprintf('[3] - Power analysis (TFR, pWelch)\n');
-    fprintf('[4] - Quit data processing\n\n');
+    fprintf('[4] - Averaging TFR and pWelch results\n');
+    fprintf('[5] - Quit data processing\n\n');
     x = input('Option: ');
   
     switch x
@@ -204,6 +228,9 @@ else
         part = 3;
         selection = true;
       case 4
+        part = 4;
+        selection = true;
+      case 5
         fprintf('\nData processing aborted.\n');
         clear selection i x y srcPath desPath session sessionList ...
             sessionNum numOfSessions dyadsSpec sessionStr
@@ -242,7 +269,12 @@ switch part
     tmpPath = strcat(desPath, '02_preproc/');
     fileNamePre = strcat(tmpPath, 'MAT_d*_02_preproc_', sessionStr, '.mat');
     tmpPath = strcat(desPath, '03d_pwelch_preproc/');
-    fileNamePost = strcat(tmpPath, 'MAT_d*_03b_pwelch_preproc_', sessionStr, '.mat');
+    fileNamePost = strcat(tmpPath, 'MAT_d*_03d_pwelch_preproc_', sessionStr, '.mat');
+  case 4
+    tmpPath = strcat(desPath, '03d_pwelch_preproc/');
+    fileNamePre = strcat(tmpPath, 'MAT_d*_03d_pwelch_preproc_', sessionStr, '.mat');
+    tmpPath = strcat(desPath, '04h_pwelchop_preproc/');
+    fileNamePost = strcat(tmpPath, 'MAT_d*_04h_pwelchop_preproc_', sessionStr, '.mat');
   otherwise
     error('Something unexpected happend. part = %d is not defined' ...
           , part);
@@ -387,6 +419,24 @@ while sessionStatus == true
       end
     case 3
       MAT_main_3;
+      selection = false;
+      while selection == false
+        fprintf('<strong>Continue data processing with:</strong>\n');
+        fprintf('<strong>[4] - Averaging TFR and pWelch results?</strong>\n');
+        x = input('\nSelect [y/n]: ','s');
+        if strcmp('y', x)
+          selection = true;
+          sessionStatus = true;
+          sessionPart = 4;
+        elseif strcmp('n', x)
+          selection = true;
+          sessionStatus = false;
+        else
+          selection = false;
+        end
+      end
+    case 4
+      MAT_main_4;
       sessionStatus = false;
     otherwise
       sessionStatus = false;

@@ -12,7 +12,7 @@ function MAT_easyMultiTFRplot(cfg, data)
 %   cfg.part        = number of participant (1 or 2) (default: 1)
 %   cfg.condition   = condition (default: 100 or 'No movement', see MAT_DATASTRUCTURE)
 %   cfg.trial       = number of trial (default: 1)
-%   cfg.freqlimits  = [begin end] (default: [2 30])
+%   cfg.freqlimits  = [begin end] (default: [2 100])
 %   cfg.timelimits  = [begin end] (default: [0 5])
 %
 % This function requires the fieldtrip toolbox
@@ -27,7 +27,7 @@ function MAT_easyMultiTFRplot(cfg, data)
 part    = ft_getopt(cfg, 'part', 1);
 cond    = ft_getopt(cfg, 'condition', 100);
 trl     = ft_getopt(cfg, 'trial', 1);
-freqlim = ft_getopt(cfg, 'freqlimits', [2 50]);
+freqlim = ft_getopt(cfg, 'freqlimits', [2 100]);
 timelim = ft_getopt(cfg, 'timelimits', [0 5]);
 
 if ~ismember(part, [1,2])                                                   % check cfg.part definition

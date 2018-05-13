@@ -14,6 +14,7 @@ function MAT_easyMultiPSDplot(cfg, data)
 %                     1 - plot data of participant 1
 %                     2 - plot data of participant 2   
 %   cfg.condition   = condition (default: 100 or 'No movement', see MAT_DATASTRUCTURE)
+%   cfg.trial       = number of trial (default: 1)  
 %
 % This function requires the fieldtrip toolbox
 %
@@ -26,6 +27,7 @@ function MAT_easyMultiPSDplot(cfg, data)
 % -------------------------------------------------------------------------
 cfg.part    = ft_getopt(cfg, 'part', 1);
 cfg.cond    = ft_getopt(cfg, 'condition', 100);
+trl         = ft_getopt(cfg, 'trial', 1);
 
 if ~ismember(cfg.part, [0,1,2])                                             % check cfg.part definition
   error('cfg.part has to either 0, 1 or 2');
@@ -64,10 +66,17 @@ end
 trialinfo = dataPlot.trialinfo;                                             % get trialinfo
 
 cfg.cond = MAT_checkCondition( cfg.cond );                                  % check cfg.condition definition    
-if isempty(find(trialinfo == cfg.cond, 1))
+trials  = find(trialinfo == cfg.cond);
+if isempty(trials)
   error('The selected dataset contains no condition %d.', cfg.cond);
 else
-  trialNum = find(ismember(trialinfo, cfg.cond));
+  numTrials = length(trials);
+  if numTrials < trl                                                        % check cfg.trial definition
+    error('The selected dataset contains only %d trials.', numTrials);
+  else
+    trlInCond = trl;
+    trl = trl-1 + trials(1);
+  end
 end
 
 % -------------------------------------------------------------------------
@@ -87,12 +96,13 @@ chanHeight        = lay.height(sellay);
 % -------------------------------------------------------------------------
 % Multi power spectral density (PSD) plot 
 % -------------------------------------------------------------------------
-datamatrix  = squeeze(dataPlot.powspctrm(trialNum, selchan, :));            %#ok<FNDSB> % extract the powerspctrm matrix    
+datamatrix  = squeeze(dataPlot.powspctrm(trl, selchan, :));                 % extract the powerspctrm matrix    
 xval        = dataPlot.freq;                                                % extract the freq vector
 xmax        = max(xval);                                                    % determine the frequency maximum
 val         = ~ismember(selchan, eogvchan);                                 
 ymaxchan    = selchan(val);
-ymax        = max(max(datamatrix(ymaxchan, 1:48)));                         % determine the power maximum of all channels expect V1 und V2
+ymax        = log(max(max(datamatrix(ymaxchan, 1:48))));                    % determine the power maximum of all channels expect V1 und V2
+ymin        = log(min(min(datamatrix(ymaxchan, 1:48))));
 
 hold on;                                                                    % hold the figure
 cla;                                                                        % clear all axis
@@ -105,12 +115,12 @@ ft_plot_lay(lay, 'box', 0, 'label', 0, 'outline', 1, 'point', 'no', ...
 
 % plot the channels
 for k=1:length(selchan) 
-  yval = datamatrix(k, :);
+  yval = log(datamatrix(k, :));
   setChanBackground([0 xmax], [0 ymax], chanX(k), chanY(k), ...             % set background of the channel boxes to white
                     chanWidth(k), chanHeight(k));
   ft_plot_vector(xval, yval, 'width', chanWidth(k), 'height', chanHeight(k),...
                 'hpos', chanX(k), 'vpos', chanY(k), 'hlim', [0 xmax], ...
-                'vlim', [0 ymax], 'box', 0);
+                'vlim', [ymin ymax], 'box', 0);
 end
 
 % add the comment field
@@ -134,7 +144,8 @@ end
 if cfg.part == 0
   title(sprintf('PSD - Cond.: %d', cfg.cond));
 else
-  title(sprintf('PSD - Part.: %d - Cond.: %d', cfg.part, cfg.cond));
+  title(sprintf('PSD - Part.: %d - Cond.: %d - Trial: %d', cfg.part, ...
+                cfg.cond, trlInCond));
 end
 
 axis tight;                                                                 % format the layout

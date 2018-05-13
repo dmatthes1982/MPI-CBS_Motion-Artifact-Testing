@@ -11,7 +11,7 @@ if ~exist('desPath', 'var')
               'DualEEG_MAT_processedData/']; 
 end
 
-if ~exist('numOfPart', 'var')                                               % estimate number of participants in eyecor data folder
+if ~exist('numOfPart', 'var')                                               % estimate number of participants in preproc data folder
   sourceList    = dir([strcat(desPath, '02_preproc/'), ...
                        strcat('*_', sessionStr, '.mat')]);
   sourceList    = struct2cell(sourceList);
@@ -25,10 +25,11 @@ if ~exist('numOfPart', 'var')                                               % es
   end
 end
 
-%% part 9
-% Calculate TFRs of the EOG-artifact corrected data
+%% part 3
+% Calculate TFRs an PSD (using pWelch's method) of raw and preprocessed 
+% data
 
-cprintf([0,0.6,0], '<strong>[9] - Power analysis (TFR, pWelch)</strong>\n');
+cprintf([0,0.6,0], '<strong>[3] - Power analysis (TFR, pWelch)</strong>\n');
 fprintf('\n');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -63,7 +64,7 @@ if tfr == true
 
     cfg         = [];
     cfg.foi     = 2:1:100;                                                  % frequency of interest
-    cfg.toi     = 0:0.02:5;                                                 % time of interest
+    cfg.toi     = 0:0.1:5;                                                  % time of interest
 
     data_tfr_raw = MAT_timeFreqanalysis( cfg, data_raw );
 
@@ -76,7 +77,7 @@ if tfr == true
     file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                        '.mat');
 
-    fprintf('Time-frequency response data of dyad %d will be saved in:\n', i); 
+    fprintf('Time-frequency response of raw data of dyad %d will be saved in:\n', i); 
     fprintf('%s ...\n', file_path);
     MAT_saveData(cfg, 'data_tfr_raw', data_tfr_raw);
     fprintf('Data stored!\n\n');
@@ -92,7 +93,7 @@ if tfr == true
 
     cfg         = [];
     cfg.foi     = 2:1:50;                                                   % frequency of interest
-    cfg.toi     = 0:0.02:5;                                                 % time of interest
+    cfg.toi     = 0:0.1:5;                                                  % time of interest
 
     data_tfr_preproc = MAT_timeFreqanalysis( cfg, data_preproc );
 
@@ -105,7 +106,7 @@ if tfr == true
     file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                        '.mat');
 
-    fprintf('Time-frequency response data of dyad %d will be saved in:\n', i); 
+    fprintf('Time-frequency response of preprocessed data of dyad %d will be saved in:\n', i); 
     fprintf('%s ...\n', file_path);
     MAT_saveData(cfg, 'data_tfr_preproc', data_tfr_preproc);
     fprintf('Data stored!\n\n');
@@ -149,7 +150,10 @@ if pwelch == true
     cfg.length   = 1;                                                       % window length: 1 sec       
     cfg.overlap  = 0.75;                                                    % 75 percent overlap
     
-    fprintf('<strong>Segmentation of preprocessed data.</strong>\n');
+    fprintf('<strong>Segmentation of raw data.</strong>\n');
+    trialinfoTemp = data_raw.part1.trialinfo;
+    data_raw.part1.trialinfo = (1:1:length(trialinfoTemp))';
+    data_raw.part2.trialinfo = (1:1:length(trialinfoTemp))';
     data_raw = MAT_segmentation( cfg, data_raw );
 
     fprintf('\n');
@@ -160,6 +164,8 @@ if pwelch == true
       
     data_raw = MAT_pWelch( cfg, data_raw );                                 % calculate power spectral density using Welch's method
     data_pwelch_raw = data_raw;                                             % to save need of RAM
+    data_pwelch_raw.part1.trialinfo =  trialinfoTemp;
+    data_pwelch_raw.part2.trialinfo =  trialinfoTemp;
     clear data_preproc
     
     % export PSD data into a *.mat file
@@ -171,7 +177,7 @@ if pwelch == true
     file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                        '.mat');
 
-    fprintf('Power spectral density data of dyad %d will be saved in:\n', i); 
+    fprintf('Power spectral density of raw data of dyad %d will be saved in:\n', i); 
     fprintf('%s ...\n', file_path);
     MAT_saveData(cfg, 'data_pwelch_raw', data_pwelch_raw);
     fprintf('Data stored!\n\n');
@@ -192,6 +198,9 @@ if pwelch == true
     cfg.overlap  = 0.75;                                                    % 75 percent overlap
     
     fprintf('<strong>Segmentation of preprocessed data.</strong>\n');
+    trialinfoTemp = data_preproc.part1.trialinfo;
+    data_preproc.part1.trialinfo = (1:1:length(trialinfoTemp))';
+    data_preproc.part2.trialinfo = (1:1:length(trialinfoTemp))';
     data_preproc = MAT_segmentation( cfg, data_preproc );
 
     fprintf('\n');
@@ -201,7 +210,9 @@ if pwelch == true
     cfg.foi     = 1:1:50;                                                   % frequency of interest
       
     data_preproc = MAT_pWelch( cfg, data_preproc );                         % calculate power spectral density using Welch's method
-    data_pwelch_preproc = data_preproc;                                             % to save need of RAM
+    data_pwelch_preproc = data_preproc;                                     % to save need of RAM
+    data_pwelch_preproc.part1.trialinfo =  trialinfoTemp;
+    data_pwelch_preproc.part2.trialinfo =  trialinfoTemp;
     clear data_preproc
     
     % export PSD data into a *.mat file
@@ -213,10 +224,10 @@ if pwelch == true
     file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                        '.mat');
 
-    fprintf('Power spectral density data of dyad %d will be saved in:\n', i); 
+    fprintf('Power spectral density of preproc data of dyad %d will be saved in:\n', i); 
     fprintf('%s ...\n', file_path);
     MAT_saveData(cfg, 'data_pwelch_preproc', data_pwelch_preproc);
-    fprintf('Data stored!\n');
+    fprintf('Data stored!\n\n');
     clear data_pwelch_preproc
   end
 end

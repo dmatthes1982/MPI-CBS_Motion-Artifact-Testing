@@ -57,15 +57,7 @@ end
 % Local functions
 % -------------------------------------------------------------------------
 function [ data_pWelch ] = pWelch(data_psd)
-% -------------------------------------------------------------------------
-% Load general definitions
-% -------------------------------------------------------------------------
-filepath = fileparts(mfilename('fullpath'));
-load(sprintf('%s/../general/MAT_generalDefinitions.mat', filepath), ...
-     'generalDefinitions');  
-
-val       = ismember(generalDefinitions.condNum, data_psd.trialinfo);
-trialinfo = generalDefinitions.condNum(val)';
+trialinfo = unique(data_psd.trialinfo);
 powspctrm = zeros(length(trialinfo), length(data_psd.label), length(data_psd.freq));
 
 for i = 1:1:length(trialinfo)

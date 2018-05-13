@@ -13,6 +13,7 @@ function MAT_easyPSDplot(cfg, data)
 %                     1 - plot data of participant 1
 %                     2 - plot data of participant 2   
 %   cfg.condition   = condition (default: 100 or 'No movement', see MAT_DATASTRUCTURE)
+%   cfg.trial       = number of trial (default: 1)   
 %   cfg.electrode   = number of electrodes (default: {'Cz'} repsectively [8])
 %                     examples: {'Cz'}, {'F3', 'Fz', 'F4'}, [8] or [2, 1, 28]
 %
@@ -27,6 +28,7 @@ function MAT_easyPSDplot(cfg, data)
 % -------------------------------------------------------------------------
 part    = ft_getopt(cfg, 'part', 1);
 cond    = ft_getopt(cfg, 'condition', 100);
+trl     = ft_getopt(cfg, 'trial', 1);
 elec    = ft_getopt(cfg, 'electrode', {'Cz'});
 
 filepath = fileparts(mfilename('fullpath'));                                % add utilities folder to path
@@ -65,11 +67,18 @@ end
 trialinfo = data.trialinfo;                                                 % get trialinfo
 label     = data.label;                                                     % get labels 
 
-cond    = MAT_checkCondition( cond );                                       % check cfg.condition definition    
-if isempty(find(trialinfo == cond, 1))
+cond = MAT_checkCondition( cond );                                          % check cfg.condition definition    
+trials  = find(trialinfo == cond);
+if isempty(trials)
   error('The selected dataset contains no condition %d.', cond);
 else
-  trialNum = find(ismember(trialinfo, cond));
+  numTrials = length(trials);
+  if numTrials < trl                                                        % check cfg.trial definition
+    error('The selected dataset contains only %d trials.', numTrials);
+  else
+    trlInCond = trl;
+    trl = trl-1 + trials(1);
+  end
 end
 
 if isnumeric(elec)                                                          % check cfg.electrode
@@ -92,13 +101,14 @@ end
 % -------------------------------------------------------------------------
 % Plot power spectral density (PSD)
 % -------------------------------------------------------------------------
-plot(data.freq, squeeze(data.powspctrm(trialNum, elec,:)));                 %#ok<FNDSB>
+plot(data.freq, log(squeeze(data.powspctrm(trl, elec,:))));
 labelString = strjoin(data.label(elec), ',');
 if part == 0                                                                % set figure title
-  title(sprintf('PSD - Cond.: %d - Elec.: %s', cond, labelString));
+  title(sprintf('PSD - Cond.: %d - Trial: %d - Elec.: %s', cond, ...
+                trlInCond, labelString));
 else
-  title(sprintf('PSD - Part.: %d - Cond.: %d - Elec.: %s', ...
-        part, cond, labelString));
+  title(sprintf('PSD - Part.: %d - Cond.: %d - Trial: %d - Elec.: %s', ...
+        part, cond, trlInCond, labelString));
 end
 
 xlabel('frequency in Hz');                                                  % set xlabel
