@@ -151,9 +151,10 @@ if pwelch == true
     cfg.overlap  = 0.75;                                                    % 75 percent overlap
     
     fprintf('<strong>Segmentation of raw data.</strong>\n');
-    trialinfoTemp = data_cleaned_raw.part1.trialinfo;
-    data_cleaned_raw.part1.trialinfo = (1:1:length(trialinfoTemp))';
-    data_cleaned_raw.part2.trialinfo = (1:1:length(trialinfoTemp))';
+    trialinfoTemp1 = data_cleaned_raw.part1.trialinfo;
+    trialinfoTemp2 = data_cleaned_raw.part2.trialinfo;
+    data_cleaned_raw.part1.trialinfo = (1:1:length(trialinfoTemp1))';
+    data_cleaned_raw.part2.trialinfo = (1:1:length(trialinfoTemp2))';
     data_cleaned_raw = MAT_segmentation( cfg, data_cleaned_raw );
 
     fprintf('\n');
@@ -164,8 +165,8 @@ if pwelch == true
       
     data_cleaned_raw = MAT_pWelch( cfg, data_cleaned_raw );                 % calculate power spectral density using Welch's method
     data_pwelch_raw = data_cleaned_raw;                                     % to save need of RAM
-    data_pwelch_raw.part1.trialinfo =  trialinfoTemp;
-    data_pwelch_raw.part2.trialinfo =  trialinfoTemp;
+    data_pwelch_raw.part1.trialinfo =  trialinfoTemp1;
+    data_pwelch_raw.part2.trialinfo =  trialinfoTemp2;
     clear data_cleaned_preproc
     
     % export PSD data into a *.mat file
@@ -198,9 +199,10 @@ if pwelch == true
     cfg.overlap  = 0.75;                                                    % 75 percent overlap
     
     fprintf('<strong>Segmentation of preprocessed data.</strong>\n');
-    trialinfoTemp = data_cleaned_preproc.part1.trialinfo;
-    data_cleaned_preproc.part1.trialinfo = (1:1:length(trialinfoTemp))';
-    data_cleaned_preproc.part2.trialinfo = (1:1:length(trialinfoTemp))';
+    trialinfoTemp1 = data_cleaned_preproc.part1.trialinfo;
+    trialinfoTemp2 = data_cleaned_preproc.part2.trialinfo;
+    data_cleaned_preproc.part1.trialinfo = (1:1:length(trialinfoTemp1))';
+    data_cleaned_preproc.part2.trialinfo = (1:1:length(trialinfoTemp2))';
     data_cleaned_preproc = MAT_segmentation( cfg, data_cleaned_preproc );
 
     fprintf('\n');
@@ -211,8 +213,8 @@ if pwelch == true
       
     data_cleaned_preproc = MAT_pWelch( cfg, data_cleaned_preproc );                         % calculate power spectral density using Welch's method
     data_pwelch_preproc = data_cleaned_preproc;                                     % to save need of RAM
-    data_pwelch_preproc.part1.trialinfo =  trialinfoTemp;
-    data_pwelch_preproc.part2.trialinfo =  trialinfoTemp;
+    data_pwelch_preproc.part1.trialinfo =  trialinfoTemp1;
+    data_pwelch_preproc.part2.trialinfo =  trialinfoTemp2;
     clear data_cleaned_preproc
     
     % export PSD data into a *.mat file
