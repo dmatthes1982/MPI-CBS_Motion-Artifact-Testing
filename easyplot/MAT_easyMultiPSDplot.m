@@ -87,7 +87,7 @@ load(sprintf('%s/../layouts/mpi_customized_acticap32.mat', filepath),...
      'lay');
 
 [selchan, sellay] = match_str(dataPlot.label, lay.label);                   % extract the subselection of channels that is part of the layout
-eogvchan          = match_str(dataPlot.label, {'V1', 'V2'});                % determine the vertical eog channles 
+%eogvchan          = match_str(dataPlot.label, {'V1', 'V2'});               % determine the vertical eog channles
 chanX             = lay.pos(sellay, 1);
 chanY             = lay.pos(sellay, 2);
 chanWidth         = lay.width(sellay);
@@ -99,10 +99,10 @@ chanHeight        = lay.height(sellay);
 datamatrix  = squeeze(dataPlot.powspctrm(trl, selchan, :));                 % extract the powerspctrm matrix    
 xval        = dataPlot.freq;                                                % extract the freq vector
 xmax        = max(xval);                                                    % determine the frequency maximum
-val         = ~ismember(selchan, eogvchan);                                 
-ymaxchan    = selchan(val);
-ymax        = log(max(max(datamatrix(ymaxchan, 1:48))));                    % determine the power maximum of all channels expect V1 und V2
-ymin        = log(min(min(datamatrix(ymaxchan, 1:48))));
+%val         = ~ismember(selchan, eogvchan);
+%ymaxchan    = selchan(val);
+ymax        = 6; %log(max(max(datamatrix(ymaxchan, 1:48))));                % determine the power maximum of all channels expect V1 und V2
+ymin        = -4; %log(min(min(datamatrix(ymaxchan, 1:48))));
 
 hold on;                                                                    % hold the figure
 cla;                                                                        % clear all axis
@@ -116,7 +116,7 @@ ft_plot_lay(lay, 'box', 0, 'label', 0, 'outline', 1, 'point', 'no', ...
 % plot the channels
 for k=1:length(selchan) 
   yval = log(datamatrix(k, :));
-  setChanBackground([0 xmax], [0 ymax], chanX(k), chanY(k), ...             % set background of the channel boxes to white
+  setChanBackground([0 xmax], [ymin ymax], chanX(k), chanY(k), ...             % set background of the channel boxes to white
                     chanWidth(k), chanHeight(k));
   ft_plot_vector(xval, yval, 'width', chanWidth(k), 'height', chanHeight(k),...
                 'hpos', chanX(k), 'vpos', chanY(k), 'hlim', [0 xmax], ...
@@ -127,7 +127,7 @@ end
 k = find(strcmp('COMNT', lay.label));
 comment = date;
 comment = sprintf('%0s\nxlim=[%.3g %.3g]', comment, 0, xmax);
-comment = sprintf('%0s\nylim=[%.3g %.3g]', comment, 0, ymax);
+comment = sprintf('%0s\nylim=[%.3g %.3g]', comment, ymin, ymax);
 
 ft_plot_text(lay.pos(k, 1), lay.pos(k, 2), sprintf(comment), ...
              'FontSize', 8, 'FontWeight', []);
@@ -137,7 +137,7 @@ k = find(strcmp('SCALE', lay.label));
 if ~isempty(k)
   x = lay.pos(k,1);
   y = lay.pos(k,2);
-  plotScales([0 xmax], [0 ymax], x, y, chanWidth(1), chanHeight(1));
+  plotScales([0 xmax], [ymin ymax], x, y, chanWidth(1), chanHeight(1));
 end
 
 % set figure title

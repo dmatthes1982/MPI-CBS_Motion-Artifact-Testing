@@ -167,7 +167,7 @@ if pwelch == true
     data_pwelch_raw = data_cleaned_raw;                                     % to save need of RAM
     data_pwelch_raw.part1.trialinfo =  trialinfoTemp1;
     data_pwelch_raw.part2.trialinfo =  trialinfoTemp2;
-    clear data_cleaned_preproc
+    clear data_cleaned_raw
     
     % export PSD data into a *.mat file
     cfg             = [];
@@ -215,7 +215,7 @@ if pwelch == true
     data_pwelch_preproc = data_cleaned_preproc;                                     % to save need of RAM
     data_pwelch_preproc.part1.trialinfo =  trialinfoTemp1;
     data_pwelch_preproc.part2.trialinfo =  trialinfoTemp2;
-    clear data_cleaned_preproc
+    clear data_cleaned_preproc trialinfoTemp1 trialinfoTemp2
     
     % export PSD data into a *.mat file
     cfg             = [];
